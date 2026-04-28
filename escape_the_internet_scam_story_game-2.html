@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Escape the Internet Scam</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(255, 0, 200, 0.35), transparent 25%),
+        radial-gradient(circle at 85% 10%, rgba(0, 229, 255, 0.35), transparent 25%),
+        radial-gradient(circle at 50% 90%, rgba(119, 255, 0, 0.2), transparent 30%),
+        linear-gradient(135deg, #070711, #101032 60%, #21083a);
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 34px 34px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .game-shell {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, 94%);
+      margin: 0 auto;
+      padding: 26px 0 60px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .logo-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #00e5ff, #ff33cc);
+      box-shadow: 0 0 24px rgba(0,229,255,0.7);
+      font-size: 26px;
+      animation: float 2.4s ease-in-out infinite;
+    }
+
+    .stats {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: inset 0 0 16px rgba(255,255,255,0.06);
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .progress-wrap {
+      height: 14px;
+      width: 100%;
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00e5ff, #ff33cc, #c6ff00);
+      border-radius: inherit;
+      transition: width 0.5s ease;
+    }
+
+    .screen {
+      display: none;
+      min-height: 620px;
+      padding: 34px;
+      border-radius: 32px;
+      background: rgba(10, 12, 35, 0.86);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 25px 80px rgba(0,0,0,0.45), inset 0 0 50px rgba(0,229,255,0.05);
+      backdrop-filter: blur(12px);
+      animation: popIn 0.35s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,51,204,0.18);
+      border: 1px solid rgba(255,51,204,0.5);
+      color: #ffbdf0;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-size: clamp(42px, 7vw, 82px);
+      line-height: 0.95;
+      margin-bottom: 18px;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(0,229,255,0.5);
+    }
+
+    h2 {
+      font-size: clamp(30px, 4vw, 48px);
+      margin-bottom: 12px;
+      text-shadow: 0 0 16px rgba(255,51,204,0.35);
+    }
+
+    h3 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #d9ddff;
+      line-height: 1.65;
+      font-size: 17px;
+    }
+
+    .hero-card, .story-card, .side-panel, .choice-card, .mission-card, .ending-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: inset 0 0 28px rgba(255,255,255,0.04);
+    }
+
+    .hero-card {
+      padding: 26px;
+      border-radius: 28px;
+      background: linear-gradient(145deg, rgba(0,229,255,0.16), rgba(255,51,204,0.14));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .big-emoji {
+      font-size: 105px;
+      text-align: center;
+      margin-bottom: 18px;
+      animation: bounce 1.8s infinite;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+      border-radius: 18px;
+      padding: 14px 20px;
+      font-weight: 900;
+      font-size: 15px;
+      color: #07101f;
+      background: linear-gradient(135deg, #c6ff00, #00e5ff);
+      box-shadow: 0 8px 24px rgba(0,229,255,0.28);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(255,51,204,0.35);
+    }
+
+    .secondary {
+      color: #fff;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.24);
+    }
+
+    .story-card {
+      padding: 22px;
+      border-radius: 24px;
+      margin-top: 22px;
+    }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .mission-card {
+      min-height: 155px;
+      padding: 18px;
+      border-radius: 22px;
+      text-align: center;
+      transition: 0.2s;
+    }
+
+    .mission-card .emoji {
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+
+    .level-layout {
+      display: grid;
+      grid-template-columns: 0.82fr 1.18fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .side-panel {
+      padding: 22px;
+      border-radius: 24px;
+      position: sticky;
+      top: 20px;
+    }
+
+    .scene-icon {
+      font-size: 72px;
+      margin-bottom: 12px;
+      animation: float 2.6s infinite;
+    }
+
+    .objective {
+      margin-top: 14px;
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(198,255,0,0.1);
+      border: 1px solid rgba(198,255,0,0.35);
+    }
+
+    .choices {
+      display: grid;
+      gap: 16px;
+    }
+
+    .choice-card {
+      padding: 20px;
+      border-radius: 24px;
+      transition: 0.2s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .choice-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0,229,255,0.7);
+      box-shadow: 0 0 26px rgba(0,229,255,0.16);
+    }
+
+    .choice-label {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+      background: rgba(0,229,255,0.16);
+      color: #bff8ff;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .choice-title {
+      color: #fff;
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .question-box {
+      padding: 20px;
+      border-radius: 24px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.15);
+      margin-bottom: 18px;
+    }
+
+    .ending-card {
+      text-align: center;
+      max-width: 830px;
+      margin: 0 auto;
+      padding: 34px;
+      border-radius: 32px;
+    }
+
+    .success {
+      background: linear-gradient(145deg, rgba(198,255,0,0.15), rgba(0,229,255,0.15));
+    }
+
+    .fail {
+      background: linear-gradient(145deg, rgba(255,0,80,0.22), rgba(90,0,0,0.2));
+      border-color: rgba(255,70,70,0.5);
+    }
+
+    .ending-emoji {
+      font-size: 120px;
+      margin-bottom: 10px;
+      animation: bounce 1.8s infinite;
+    }
+
+    .mini-list {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .mini-list div {
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: rotate(-4deg) translateY(0); }
+      50% { transform: rotate(4deg) translateY(-5px); }
+    }
+
+    @media (max-width: 900px) {
+      .hero, .level-layout {
+        grid-template-columns: 1fr;
+      }
+      .mission-grid {
+        grid-template-columns: 1fr;
+      }
+      .screen {
+        padding: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-shell">
+    <div class="top-bar">
+      <div class="logo">
+        <div class="logo-icon">🛡️</div>
+        <div>
+          <div>ESCAPE THE INTERNET SCAM</div>
+          <small style="color:#bfc7ff;">Answer correctly or get hacked</small>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="pill">Question: <span id="levelText">0</span>/10</div>
+        <div class="pill">Lives: <span id="lifeText">1</span></div>
+        <div class="pill">Correct: <span id="correctText">0</span>/10</div>
+      </div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <section id="home" class="screen active">
+      <div class="hero">
+        <div>
+          <span class="tag">INTERACTIVE STORY GAME</span>
+          <h1>Can You Escape the Digital Trap?</h1>
+          <p>
+            You clicked a fake pop-up and got pulled into ScamNet, a dangerous digital world full of phishing emails,
+            fake websites, weak passwords, misinformation, and AI deepfakes. You only have one life.
+          </p>
+          <br>
+          <p><b>Rule:</b> If you choose even one wrong answer, you get hacked and cannot escape. If you answer all 10 correctly, you escape.</p>
+          <div class="btn-row">
+            <button onclick="goToScreen('briefing')">Start Mission</button>
+            <button class="secondary" onclick="goToScreen('about')">How It Works</button>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="big-emoji">💻⚠️</div>
+          <h3>Incoming ScamNet Message</h3>
+          <p>
+            “Welcome, player. The exit is locked behind ten questions. Think carefully. One wrong click means you are hacked.”
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="screen">
+      <h2>How to Play</h2>
+      <p>
+        This is a story-based educational game. The user learns internet safety by choosing the safest answer in each scenario.
+        The project teaches a general audience how to recognize scams in an interactive way.
+      </p>
+      <div class="mission-grid">
+        <div class="mission-card"><div class="emoji">📧</div><b>Q1</b><p>Phishing email</p></div>
+        <div class="mission-card"><div class="emoji">🎁</div><b>Q2</b><p>Fake giveaway</p></div>
+        <div class="mission-card"><div class="emoji">🔐</div><b>Q3</b><p>Strong password</p></div>
+        <div class="mission-card"><div class="emoji">📱</div><b>Q4</b><p>QR code trap</p></div>
+        <div class="mission-card"><div class="emoji">📶</div><b>Q5</b><p>Public WiFi</p></div>
+        <div class="mission-card"><div class="emoji">📰</div><b>Q6</b><p>Fake news</p></div>
+        <div class="mission-card"><div class="emoji">🤖</div><b>Q7</b><p>Deepfake</p></div>
+        <div class="mission-card"><div class="emoji">🔦</div><b>Q8</b><p>App permissions</p></div>
+        <div class="mission-card"><div class="emoji">🛒</div><b>Q9</b><p>Shopping scam</p></div>
+        <div class="mission-card"><div class="emoji">☎️</div><b>Q10</b><p>Phone scam</p></div>
+      </div>
+      <div class="btn-row">
+        <button onclick="goToScreen('home')">Back</button>
+        <button onclick="goToScreen('briefing')">Start</button>
+      </div>
+    </section>
+
+    <section id="briefing" class="screen">
+      <h2>Story Briefing</h2>
+      <div class="story-card">
+        <h3>🌐 You Are Inside ScamNet</h3>
+        <p>
+          The screen flashes. Your browser freezes. Suddenly, you are standing in a glowing digital hallway.
+          A robot voice says: “To leave, prove you can survive the internet.”
+        </p>
+      </div>
+      <div class="story-card">
+        <h3>Mission Rule</h3>
+        <p>
+          You must answer ten questions correctly. A wrong answer means the scammer steals your data and the game ends.
+        </p>
+      </div>
+      <div class="btn-row">
+        <button onclick="startLevel(1)">Begin Question 1</button>
+      </div>
+    </section>
+
+    <section id="level1" class="screen question-screen" data-icon="📧" data-title="Question 1: Phishing Email" data-objective="Choose the phishing email." data-question="Which email is dangerous?" data-hint="Look at the sender, the tone, and what the message asks you to do."></section>
+    <section id="level2" class="screen question-screen" data-icon="🎁" data-title="Question 2: Fake Giveaway DM" data-objective="Choose the safest response." data-question="A DM says you won a free iPhone and asks for bank details. What should you do?" data-hint="Real giveaways should not ask for private banking information through a random link."></section>
+    <section id="level3" class="screen question-screen" data-icon="🔐" data-title="Question 3: Password Vault" data-objective="Choose the strongest password." data-question="Which password is hardest to hack?" data-hint="Strong passwords usually use length, uppercase and lowercase letters, numbers, and symbols."></section>
+    <section id="level4" class="screen question-screen" data-icon="📱" data-title="Question 4: QR Code Trap" data-objective="Choose the safest action." data-question="You see a random QR code on a street pole that says FREE CASH REWARD. What should you do?" data-hint="Unknown QR codes can send you to scam websites."></section>
+    <section id="level5" class="screen question-screen" data-icon="📶" data-title="Question 5: Public WiFi Room" data-objective="Protect your private information." data-question="You are at a café and need to check your bank account. The only WiFi is FREE_PUBLIC_WIFI_NO_PASSWORD. What should you do?" data-hint="Public WiFi can be risky for banking or private accounts."></section>
+    <section id="level6" class="screen question-screen" data-icon="📰" data-title="Question 6: Fake News Trap" data-objective="Choose the misleading post." data-question="Which post should you NOT trust?" data-hint="Watch for emotional wording, no credible source, and extreme claims."></section>
+    <section id="level7" class="screen question-screen" data-icon="🤖" data-title="Question 7: Deepfake Mirror" data-objective="Spot the deepfake clue." data-question="Which detail suggests a deepfake video?" data-hint="Deepfakes can show mismatched lips, blurry edges, strange shadows, or unnatural movement."></section>
+    <section id="level8" class="screen question-screen" data-icon="🔦" data-title="Question 8: App Permission Room" data-objective="Choose the safest permission choice." data-question="A flashlight app asks for camera, contacts, microphone, and location. What should you do?" data-hint="Apps should only ask for permissions they actually need."></section>
+    <section id="level9" class="screen question-screen" data-icon="🛒" data-title="Question 9: Shopping Scam" data-objective="Avoid the scam checkout." data-question="A website says MacBook Pro only $49 and the URL is not-secure-free-prize-laptop.ru. What should you do?" data-hint="Unrealistic prices and strange URLs are major warning signs."></section>
+    <section id="level10" class="screen question-screen" data-icon="☎️" data-title="Question 10: Phone Scam Call" data-objective="Choose the safe response." data-question="You get a call saying: This is the IRS. Pay immediately or police will arrest you. What should you do?" data-hint="Scammers use fear and urgency to pressure people."></section>
+
+    <section id="success" class="screen">
+      <div class="ending-card success">
+        <div class="ending-emoji">🏆</div>
+        <h2>You Escaped!</h2>
+        <p>
+          You answered every question correctly and escaped ScamNet. You proved that safe internet users slow down,
+          check sources, question suspicious links, protect passwords, and never give personal information to fake websites.
+        </p>
+        <div class="mini-list">
+          <div>📧 You spotted phishing by checking the sender, urgency, and suspicious link.</div>
+          <div>🎁 You avoided a fake giveaway asking for private information.</div>
+          <div>🔐 You chose a stronger password with variety and symbols.</div>
+          <div>📱 You knew random QR codes can lead to scam websites.</div>
+          <div>📶 You avoided logging into banking on risky public WiFi.</div>
+          <div>📰 You recognized misinformation by checking the source.</div>
+          <div>🤖 You noticed a deepfake clue in the mouth movement.</div>
+          <div>🔦 You denied unnecessary app permissions.</div>
+          <div>🛒 You avoided a fake shopping website before entering payment information.</div>
+          <div>☎️ You knew to hang up and verify through official sources.</div>
+        </div>
+        <div class="btn-row" style="justify-content:center;">
+          <button onclick="restartGame()">Play Again</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="fail" class="screen">
+      <div class="ending-card fail">
+        <div class="ending-emoji">💀</div>
+        <h2>You’ve Been Hacked</h2>
+        <p id="failReason"></p>
+        <br>
+        <p>
+          In the real world, one careless click can expose passwords, payment information, or personal data.
+          Try again and look more closely at the clues.
+        </p>
+        <div class="btn-row" style="justify-content:center;">
+          <button onclick="restartGame()">Try Again</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let currentLevel = 0;
+    let correctAnswers = 0;
+
+    const questions = {
+      1: [
+        { label: 'A', title: 'from: professor@college.edu', text: 'Reminder: Final project link is due before class on Friday.', correct: false, fail: 'That was a normal class reminder. You clicked the wrong email and ScamNet stole your school login.' },
+        { label: 'B', title: 'from: support-login-verify@netf1ix-prize.ru', text: 'Your account will be deleted in 10 minutes. Click here to verify your password now.', correct: true },
+        { label: 'C', title: 'from: bookstore@shop.com', text: 'Use your student discount for notebooks this weekend.', correct: false, fail: 'That was a normal sale email. The real phishing clue was the urgent fake login message.' }
+      ],
+      2: [
+        { label: 'A', title: 'Fill it out quickly.', text: 'The message says the prize expires soon.', correct: false, fail: 'You entered private banking information into a fake giveaway form. The scammer stole your data.' },
+        { label: 'B', title: 'Ignore and report the suspicious message.', text: 'A random DM asking for bank details is not trustworthy.', correct: true },
+        { label: 'C', title: 'Forward it to friends.', text: 'Maybe they can win too.', correct: false, fail: 'Sharing the link spread the scam to other people. ScamNet locked the exit.' }
+      ],
+      3: [
+        { label: 'A', title: 'Password123', text: 'Easy to remember, but also easy to guess.', correct: false, fail: 'Password123 is too common and predictable. The hacker guessed it instantly.' },
+        { label: 'B', title: 'Raisa2004', text: 'A name plus birth year.', correct: false, fail: 'A name and birth year can often be found online. The hacker cracked it.' },
+        { label: 'C', title: 'CyberStar7!', text: 'Uses uppercase, lowercase, a number, and a symbol.', correct: true }
+      ],
+      4: [
+        { label: 'A', title: 'Scan immediately.', text: 'It says free cash, so it must be good.', correct: false, fail: 'The QR code sent you to a fake login page. ScamNet stole your account.' },
+        { label: 'B', title: 'Be cautious and avoid unknown QR codes.', text: 'Unknown QR codes may lead to scam websites.', correct: true },
+        { label: 'C', title: 'Send it to everyone.', text: 'Other people might want free cash too.', correct: false, fail: 'You spread the scam QR code. More users got trapped in ScamNet.' }
+      ],
+      5: [
+        { label: 'A', title: 'Log in normally.', text: 'It is free WiFi, so it should be fine.', correct: false, fail: 'You logged into banking on unsafe WiFi. Your information was exposed.' },
+        { label: 'B', title: 'Use a personal hotspot or secure network instead.', text: 'Private accounts should be accessed on safer connections.', correct: true },
+        { label: 'C', title: 'Save all passwords on the café computer.', text: 'It will be faster next time.', correct: false, fail: 'Saving passwords on shared or unsafe devices gave the scammer access.' }
+      ],
+      6: [
+        { label: 'A', title: 'City warns of heavy rain tonight.', text: 'Source: National Weather Service update.', correct: false, fail: 'This post named an official weather source. It was not the misinformation trap.' },
+        { label: 'B', title: 'SHOCKING: One lemon cures every illness!', text: 'Source: anonymous viral account. No medical source linked.', correct: true },
+        { label: 'C', title: 'Subway delays reported on two lines.', text: 'Source: transit agency service alert.', correct: false, fail: 'This post came from a transit agency update. The fake post was the one with no credible source.' }
+      ],
+      7: [
+        { label: 'A', title: 'The person blinks normally.', text: 'The lighting and mouth movement look consistent.', correct: false, fail: 'Natural blinking alone is not a strong deepfake sign. You missed the bigger warning.' },
+        { label: 'B', title: 'The mouth does not match the words.', text: 'The face also has blurry edges when it moves.', correct: true },
+        { label: 'C', title: 'The background is clear.', text: 'Nothing bends or glitches near the face.', correct: false, fail: 'A clear background is not the warning sign. The suspicious clue was the mismatched mouth movement.' }
+      ],
+      8: [
+        { label: 'A', title: 'Accept all permissions.', text: 'The app probably needs everything.', correct: false, fail: 'You gave a suspicious app access to contacts, microphone, and location. ScamNet collected your data.' },
+        { label: 'B', title: 'Deny unnecessary permissions.', text: 'A flashlight app should not need contacts or microphone access.', correct: true },
+        { label: 'C', title: 'Share the app before checking it.', text: 'The app looks useful.', correct: false, fail: 'You spread a suspicious app before checking its permissions.' }
+      ],
+      9: [
+        { label: 'A', title: 'Buy now before the deal ends.', text: 'The countdown says only 5 minutes left.', correct: false, fail: 'You entered your card information on a fake site. The scammer stole your payment details.' },
+        { label: 'B', title: 'Leave the site and do not enter payment information.', text: 'The price, spelling, and URL are all warning signs.', correct: true },
+        { label: 'C', title: 'Send the link to friends.', text: 'Maybe someone else can get the deal too.', correct: false, fail: 'Sharing the link spreads the scam to other people. The safe choice was to leave the site.' }
+      ],
+      10: [
+        { label: 'A', title: 'Send payment cards immediately.', text: 'The caller sounds angry and threatening.', correct: false, fail: 'The scammer used fear to pressure you. You sent payment before verifying anything.' },
+        { label: 'B', title: 'Hang up and verify through official sources.', text: 'Do not trust threatening calls that demand immediate payment.', correct: true },
+        { label: 'C', title: 'Give your Social Security number.', text: 'The caller says they need it to confirm your identity.', correct: false, fail: 'You gave sensitive personal information to a scam caller.' }
+      ]
+    };
+
+    function buildQuestions() {
+      document.querySelectorAll('.question-screen').forEach(section => {
+        const level = Number(section.id.replace('level', ''));
+        const choices = questions[level].map(choice => `
+          <div class="choice-card" onclick="answerQuestion(${level}, ${choice.correct}, '${encodeURIComponent(choice.fail || '')}')">
+            <span class="choice-label">${choice.label}</span>
+            <div class="choice-title">${choice.title}</div>
+            <p>${choice.text}</p>
+          </div>
+        `).join('');
+
+        section.innerHTML = `
+          <div class="level-layout">
+            <div class="side-panel">
+              <div class="scene-icon">${section.dataset.icon}</div>
+              <h2>${section.dataset.title}</h2>
+              <p>${section.dataset.hint}</p>
+              <div class="objective"><b>${section.dataset.objective}</b></div>
+            </div>
+            <div>
+              <div class="question-box">
+                <h3>${section.dataset.question}</h3>
+                <p>Choose carefully. One wrong answer means you get hacked.</p>
+              </div>
+              <div class="choices">${choices}</div>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function goToScreen(id) {
+      document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function startLevel(level) {
+      currentLevel = level;
+      updateStats();
+      goToScreen('level' + level);
+    }
+
+    function updateStats() {
+      document.getElementById('levelText').textContent = currentLevel;
+      document.getElementById('correctText').textContent = correctAnswers;
+      document.getElementById('lifeText').textContent = '1';
+      document.getElementById('progressBar').style.width = (correctAnswers / 10 * 100) + '%';
+    }
+
+    function answerQuestion(level, isCorrect, encodedReason) {
+      if (isCorrect) {
+        correctAnswers++;
+        updateStats();
+
+        if (level < 10) {
+          startLevel(level + 1);
+        } else {
+          goToScreen('success');
+        }
+      } else {
+        wrongChoice(decodeURIComponent(encodedReason));
+      }
+    }
+
+    function wrongChoice(reason) {
+      document.getElementById('failReason').textContent = reason;
+      document.getElementById('lifeText').textContent = '0';
+      goToScreen('fail');
+    }
+
+    function restartGame() {
+      currentLevel = 0;
+      correctAnswers = 0;
+      updateStats();
+      goToScreen('home');
+    }
+
+    buildQuestions();
+    updateStats();
+  </script>
+</body>
+</html>
